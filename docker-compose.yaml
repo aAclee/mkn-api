@@ -1,0 +1,26 @@
+version: '3.1'
+
+services:
+  psql_mkn:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: mkn_db
+      POSTGRES_USER: mkn_psql
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5432:5432
+    volumes:
+      - ./docker/data/postgresql/mkn:/var/lib/postgresql
+
+  psql_mkn_test:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: mkn_db_test
+      POSTGRES_USER: mkn_psql_test
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5433:5432
+    volumes:
+      - ./docker/data/postgresql/mkn_test:/var/lib/postgresql
