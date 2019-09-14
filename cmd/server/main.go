@@ -1,10 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
+	stdHttp "net/http"
 
 	"github.com/aaclee/mkn-api/pkg/http"
 	"github.com/aaclee/mkn-api/pkg/logger"
+	"github.com/gorilla/mux"
 )
 
 const (
@@ -30,9 +33,34 @@ func main() {
 	// Create server
 	server := http.CreateServer(config)
 
+	// Create server mux
+	r := mux.NewRouter()
+
+	r.Use(middleware)
+
+	// Catch all route handler
+	r.PathPrefix("/").HandlerFunc(catchAllHandler)
+
 	// Listen and Serve
-	err = server.ListenAndServe()
+	err = server.ListenAndServe(r)
 	if err != nil {
 		log.Fatalf("Server could not start on port: %d\n", config.Port)
 	}
+}
+
+func catchAllHandler(w stdHttp.ResponseWriter, r *stdHttp.Request) {
+	w.WriteHeader(stdHttp.StatusNotFound)
+
+	json.NewEncoder(w).Encode(struct {
+		Error string `json:"error"`
+	}{
+		Error: "Path not found!",
+	})
+}
+
+func middleware(next stdHttp.Handler) stdHttp.Handler {
+	return stdHttp.HandlerFunc(func(w stdHttp.ResponseWriter, r *stdHttp.Request) {
+		w.Header().Add("Content-Type", "application/json")
+		next.ServeHTTP(w, r)
+	})
 }

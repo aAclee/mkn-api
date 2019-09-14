@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-
-	"github.com/gorilla/mux"
 )
 
 // Logger standardization
@@ -37,7 +35,7 @@ type Server struct {
 }
 
 // ListenAndServe listens on the TCP network and serves handler to handle requests
-func (s *Server) ListenAndServe() error {
+func (s *Server) ListenAndServe(handler http.Handler) error {
 	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", s.port))
 	if err != nil {
 		return err
@@ -46,7 +44,7 @@ func (s *Server) ListenAndServe() error {
 	s.listener = ln
 
 	s.log.Infof("Starting server on port %d...\n", s.port)
-	return http.Serve(s.listener, s.CreateMux())
+	return http.Serve(s.listener, handler)
 }
 
 // Close stops the listener if it's open
@@ -54,13 +52,6 @@ func (s *Server) Close() {
 	if s.listener != nil {
 		s.listener.Close()
 	}
-}
-
-// CreateMux sets up api routes and catch all
-func (s *Server) CreateMux() *mux.Router {
-	r := mux.NewRouter()
-
-	return r
 }
 
 // CreateServer creates a server ready for listening
