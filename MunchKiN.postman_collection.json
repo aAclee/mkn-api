@@ -1,0 +1,95 @@
+{
+	"info": {
+		"_postman_id": "b55d3f9e-f430-46ba-83d5-f6bcc060b179",
+		"name": "MunchKiN",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "/api/auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1d74efa1-c15c-4676-a672-8660b3271da6",
+								"exec": [
+									"jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"code-challenge-token\", jsonData.token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"username\": \"admin@email.com\",\n\t\"password\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{api}}/api/auth",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"api",
+								"auth"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "/test",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1d74efa1-c15c-4676-a672-8660b3271da6",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{api}}/test",
+					"host": [
+						"{{api}}"
+					],
+					"path": [
+						"test"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
