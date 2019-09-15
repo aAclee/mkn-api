@@ -40,6 +40,13 @@ https://docs.docker.com/compose/install/
 
 ## Getting Started
 
+
 ```shell
+# Starting the database
+$ docker-compose up
+```
+
+```shell
+# Running the server
 $ go run cmd/server/main.go
 ```
