@@ -8,6 +8,27 @@
 
 https://golang.org/doc/install
 
+## Brew
+
+### Link
+
+https://brew.sh
+
+## golang-migrate
+
+### Link
+
+https://github.com/golang-migrate/migrate/tree/master/cmd/migrate
+
+
+### Installation
+
+```shell
+# macOS
+
+$ brew install golang-migrate
+```
+
 ## DEP
 
 ### Link
