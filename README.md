@@ -50,3 +50,9 @@ $ docker-compose up
 # Running the server
 $ go run cmd/server/main.go
 ```
+
+## Tests
+
+```shell
+$ go test ./...
+```
