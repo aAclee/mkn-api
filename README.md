@@ -73,6 +73,11 @@ $ migrate -database "postgres://mkn_psql:password@localhost:5432/mkn_db?sslmode=
 ```
 
 ```shell
+# Seed database
+$ go run cmd/seed/main.go
+```
+
+```shell
 # Running the server
 $ go run cmd/server/main.go
 ```
@@ -88,4 +93,10 @@ $ go test ./...
 ```shell
 # Creating a migration
 $ migrate create -ext sql -dir db/migrations create_sample_table
+```
+
+### Connecting Manually
+
+```shell
+$ psql -h localhost -p 5432 -d mkn_db -U mkn_psql
 ```
