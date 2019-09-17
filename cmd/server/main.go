@@ -5,6 +5,7 @@ import (
 	"log"
 	stdHttp "net/http"
 
+	"github.com/aaclee/mkn-api/pkg/auth"
 	"github.com/aaclee/mkn-api/pkg/http"
 	"github.com/aaclee/mkn-api/pkg/logger"
 	"github.com/gorilla/mux"
@@ -38,6 +39,10 @@ func main() {
 
 	r.Use(middleware)
 
+	// Handlers
+	authHandler := auth.CreateHandler()
+	r.HandleFunc("/api/auth", authHandler.Authenticate).Methods("POST")
+
 	// Catch all route handler
 	r.PathPrefix("/").HandlerFunc(catchAllHandler)
 
@@ -60,7 +65,14 @@ func catchAllHandler(w stdHttp.ResponseWriter, r *stdHttp.Request) {
 
 func middleware(next stdHttp.Handler) stdHttp.Handler {
 	return stdHttp.HandlerFunc(func(w stdHttp.ResponseWriter, r *stdHttp.Request) {
+		if r.Method == stdHttp.MethodOptions {
+			return
+		}
+
+		w.Header().Add("Access-Control-Allow-Origin", "http://localhost:3000")
+		w.Header().Add("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, Authorization,X-CSRF-Token")
 		w.Header().Add("Content-Type", "application/json")
+
 		next.ServeHTTP(w, r)
 	})
 }
