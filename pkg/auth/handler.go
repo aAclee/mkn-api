@@ -6,12 +6,20 @@ import (
 	"net/http"
 )
 
+type authService interface {
+	Authenticate(username string, password string) (string, error)
+}
+
 // Handler is a RESTful HTTP endpoint for for authentication
-type Handler struct{}
+type Handler struct {
+	auth authService
+}
 
 // CreateHandler creates a new auth handler instance
-func CreateHandler() Handler {
-	return Handler{}
+func CreateHandler(as authService) *Handler {
+	return &Handler{
+		auth: as,
+	}
 }
 
 // Authenticate is the HTTP POST handler for /api/auth
@@ -29,15 +37,16 @@ func (h *Handler) Authenticate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if body.Username != "admin.mkn@gmail.com" || body.Password != "password" {
-		encodeError(w, http.StatusUnauthorized, "Invalid username or password")
+	token, err := h.auth.Authenticate(body.Username, body.Password)
+	if err != nil {
+		encodeError(w, http.StatusUnauthorized, err.Error())
 		return
 	}
 
 	w.WriteHeader(200)
 	encode(w, struct {
 		Token string `json:"token"`
-	}{"abcd-1234-efg-567"})
+	}{token})
 }
 
 func encode(w http.ResponseWriter, resp interface{}) {
