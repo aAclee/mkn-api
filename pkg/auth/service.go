@@ -4,20 +4,35 @@ import (
 	"errors"
 	"time"
 
+	"github.com/aaclee/mkn-api/pkg/user"
 	"github.com/dgrijalva/jwt-go"
 )
 
+type userRepository interface {
+	FindUserByEmail(email string) (user.IModel, error)
+}
+
 // Service is the backing auth service invoked by HTTP/REST handlers
-type Service struct{}
+type Service struct {
+	user userRepository
+}
 
 // CreateService creates an instance of the auth service struct
-func CreateService() *Service {
-	return &Service{}
+func CreateService(ur userRepository) *Service {
+	return &Service{
+		user: ur,
+	}
 }
 
 // Authenticate validates the username against the password and returns a JWT
-func (h *Service) Authenticate(username string, password string) (string, error) {
-	if username != "admin.mkn@gmail.com" || password != "password" {
+func (s *Service) Authenticate(username string, password string) (string, error) {
+	user, err := s.user.FindUserByEmail(username)
+	// TODO: err from FindUserByEmail needs to be handled
+	if err != nil {
+		return "", errors.New("Invalid username or password")
+	}
+
+	if user.GetEmail() != "admin.mkn@gmail.com" || password != "password" {
 		return "", errors.New("Invalid username or password")
 	}
 
