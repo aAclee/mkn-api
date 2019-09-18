@@ -39,11 +39,14 @@ func main() {
 
 	r.Use(middleware)
 
+	// Services
+	authService := auth.CreateService()
+
 	// Handlers
-	authHandler := auth.CreateHandler()
+	authHandler := auth.CreateHandler(authService)
 	r.HandleFunc("/api/auth", authHandler.Authenticate).Methods("POST")
 
-	// Catch all route handler
+	// Handler for non-existing routes
 	r.PathPrefix("/").HandlerFunc(catchAllHandler)
 
 	// Listen and Serve
