@@ -8,7 +8,11 @@ import (
 	"github.com/aaclee/mkn-api/pkg/auth"
 	"github.com/aaclee/mkn-api/pkg/http"
 	"github.com/aaclee/mkn-api/pkg/logger"
+	"github.com/aaclee/mkn-api/pkg/postgres"
+	"github.com/aaclee/mkn-api/pkg/user"
 	"github.com/gorilla/mux"
+
+	_ "github.com/lib/pq"
 )
 
 const (
@@ -19,11 +23,23 @@ func main() {
 	// Getting server configs
 	c, err := http.GetServerConfigs(configPath)
 	if err != nil {
-		log.Fatalf("Error procesing config file at: %s, %s\n", configPath, err)
+		log.Fatalf("Error processing config file at: %s, %s\n", configPath, err)
 	}
 
 	// Setting up logger
 	logger := logger.CreateLogger()
+
+	// Create postgres connection
+	db, err := postgres.CreateConnection(postgres.Config{
+		Host:     "localhost",
+		Port:     5432,
+		User:     "mkn_psql",
+		Password: "password",
+		DBname:   "mkn_db",
+	})
+	if err != nil {
+		log.Fatalf("Error creating postgres connection: %s", err)
+	}
 
 	// Create server configs
 	config := http.Config{
@@ -37,10 +53,14 @@ func main() {
 	// Create server mux
 	r := mux.NewRouter()
 
+	// Mux middleware
 	r.Use(middleware)
 
+	// Repositories
+	userRepository := user.CreatePostgresRepository(db)
+
 	// Services
-	authService := auth.CreateService()
+	authService := auth.CreateService(userRepository)
 
 	// Handlers
 	authHandler := auth.CreateHandler(authService)
