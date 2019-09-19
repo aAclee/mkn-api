@@ -1,0 +1,7 @@
+{
+  "host": "localhost",
+  "port": 5432,
+  "user": "mkn_psql",
+  "pass": "password",
+  "dbName": "mkn_db"
+}
