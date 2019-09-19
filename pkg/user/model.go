@@ -13,3 +13,8 @@ type Model struct {
 func (m *Model) GetEmail() string {
 	return m.Email
 }
+
+// GetUUID returns the user email
+func (m *Model) GetUUID() uuid.UUID {
+	return m.UUID
+}
