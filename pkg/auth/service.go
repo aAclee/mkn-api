@@ -6,7 +6,12 @@ import (
 
 	"github.com/aaclee/mkn-api/pkg/user"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/google/uuid"
 )
+
+type authRepository interface {
+	Authenticate(uuid uuid.UUID, password string) error
+}
 
 type userRepository interface {
 	FindUserByEmail(email string) (user.IModel, error)
@@ -14,12 +19,14 @@ type userRepository interface {
 
 // Service is the backing auth service invoked by HTTP/REST handlers
 type Service struct {
+	auth authRepository
 	user userRepository
 }
 
 // CreateService creates an instance of the auth service struct
-func CreateService(ur userRepository) *Service {
+func CreateService(ar authRepository, ur userRepository) *Service {
 	return &Service{
+		auth: ar,
 		user: ur,
 	}
 }
@@ -32,15 +39,16 @@ func (s *Service) Authenticate(username string, password string) (string, error)
 		return "", errors.New("Invalid username or password")
 	}
 
-	if user.GetEmail() != "admin.mkn@gmail.com" || password != "password" {
+	err = s.auth.Authenticate(user.GetUUID(), password)
+	if err != nil {
 		return "", errors.New("Invalid username or password")
 	}
 
 	// TODO: Add email / username to this claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"iss": "munchkin-api",
-		"sub": "admin.mkn@gmail.com",
-		"usr": "admin.mkn@gmail.com",
+		"sub": user.GetUUID(),
+		"usr": user.GetEmail(),
 		"aud": "munchkin-ui",
 		"exp": time.Now().Add(time.Hour * 8),
 		"nbf": time.Now(),
