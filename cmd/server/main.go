@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"log"
 	stdHttp "net/http"
 
@@ -16,26 +17,38 @@ import (
 )
 
 const (
-	configPath = "./config/config.development.json"
+	serverConfig   = "./config/server.development.json"
+	postgresConfig = "./config/postgres.development.json"
 )
 
 func main() {
 	// Getting server configs
-	c, err := http.GetServerConfigs(configPath)
+	c, err := http.GetServerConfigs(serverConfig)
 	if err != nil {
-		log.Fatalf("Error processing config file at: %s, %s\n", configPath, err)
+		log.Fatalf("Error processing server config file at: %s, %s\n", serverConfig, err)
 	}
 
 	// Setting up logger
 	logger := logger.CreateLogger()
 
+	// Getting database configs
+	dc, err := postgres.GetDatabaseConfigs(postgresConfig)
+	if err != nil {
+		log.Fatalf("Error processing database config file at: %s, %s\n", serverConfig, err)
+	}
+
+	// Override flags
+	var dbHost = flag.String("dbhost", dc.Host, "override database hostname")
+
+	flag.Parse()
+
 	// Create postgres connection
 	db, err := postgres.CreateConnection(postgres.Config{
-		Host:     "localhost",
-		Port:     5432,
-		User:     "mkn_psql",
-		Password: "password",
-		DBname:   "mkn_db",
+		Host:     *dbHost,
+		Port:     dc.Port,
+		User:     dc.User,
+		Password: dc.Password,
+		DBname:   dc.Database,
 	})
 	if err != nil {
 		log.Fatalf("Error creating postgres connection: %s", err)
