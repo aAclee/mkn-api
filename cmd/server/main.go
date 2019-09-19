@@ -57,10 +57,11 @@ func main() {
 	r.Use(middleware)
 
 	// Repositories
+	authRepository := auth.CreatePostgresRepository(db)
 	userRepository := user.CreatePostgresRepository(db)
 
 	// Services
-	authService := auth.CreateService(userRepository)
+	authService := auth.CreateService(authRepository, userRepository)
 
 	// Handlers
 	authHandler := auth.CreateHandler(authService)
