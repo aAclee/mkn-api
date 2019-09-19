@@ -2,11 +2,14 @@ package user
 
 import (
 	"database/sql"
+
+	"github.com/google/uuid"
 )
 
 // IModel represents the model interface
 type IModel interface {
 	GetEmail() string
+	GetUUID() uuid.UUID
 }
 
 // PostgresRepository is the backing user repository invoked by services
