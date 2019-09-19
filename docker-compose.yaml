@@ -1,6 +1,11 @@
 version: '3.1'
 
 services:
+  mkn_server:
+    build: .
+    ports:
+      - 8000:8000
+
   psql_mkn:
     image: postgres:latest
     restart: always
