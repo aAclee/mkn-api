@@ -9,8 +9,8 @@ import (
 	"github.com/aaclee/mkn-api/pkg/auth"
 	"github.com/aaclee/mkn-api/pkg/http"
 	"github.com/aaclee/mkn-api/pkg/logger"
+	"github.com/aaclee/mkn-api/pkg/player"
 	"github.com/aaclee/mkn-api/pkg/postgres"
-	"github.com/aaclee/mkn-api/pkg/user"
 	"github.com/gorilla/mux"
 
 	_ "github.com/lib/pq"
@@ -71,10 +71,10 @@ func main() {
 
 	// Repositories
 	authRepository := auth.CreatePostgresRepository(db)
-	userRepository := user.CreatePostgresRepository(db)
+	playerRepository := player.CreatePostgresRepository(db)
 
 	// Services
-	authService := auth.CreateService(authRepository, userRepository)
+	authService := auth.CreateService(authRepository, playerRepository)
 
 	// Handlers
 	authHandler := auth.CreateHandler(authService)
