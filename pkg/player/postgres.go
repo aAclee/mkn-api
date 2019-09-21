@@ -1,4 +1,4 @@
-package user
+package player
 
 import (
 	"database/sql"
@@ -12,22 +12,22 @@ type IModel interface {
 	GetUUID() uuid.UUID
 }
 
-// PostgresRepository is the backing user repository invoked by services
+// PostgresRepository is the backing player repository invoked by services
 type PostgresRepository struct {
 	psql *sql.DB
 }
 
-// CreatePostgresRepository creates an instance of the user repository struct
+// CreatePostgresRepository creates an instance of the player repository struct
 func CreatePostgresRepository(db *sql.DB) *PostgresRepository {
 	return &PostgresRepository{
 		psql: db,
 	}
 }
 
-// FindUserByEmail finds a user by email
-func (r *PostgresRepository) FindUserByEmail(email string) (IModel, error) {
+// FindPlayerByEmail finds a player by email
+func (r *PostgresRepository) FindPlayerByEmail(email string) (IModel, error) {
 	row := r.psql.QueryRow(
-		`SELECT id, uuid, email FROM users
+		`SELECT id, uuid, email FROM players
 		WHERE email = $1`,
 		email,
 	)
