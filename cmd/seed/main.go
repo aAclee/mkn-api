@@ -68,11 +68,11 @@ func main() {
 	}
 
 	userInsertQuery := `
-		INSERT INTO users (uuid, email)
-		VALUES ($1, $2)`
-	_, err = db.Exec(userInsertQuery, adminUUID, adminEmail)
+		INSERT INTO players (uuid, email, admin)
+		VALUES ($1, $2, $3)`
+	_, err = db.Exec(userInsertQuery, adminUUID, adminEmail, true)
 	if err != nil {
-		logger.Errorf("SEED: Could not insert admin user value: %v", err)
+		logger.Errorf("SEED: Could not insert admin player value: %v", err)
 		os.Exit(1)
 	}
 }
