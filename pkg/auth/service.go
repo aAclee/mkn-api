@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/aaclee/mkn-api/pkg/user"
+	"github.com/aaclee/mkn-api/pkg/player"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 )
@@ -13,28 +13,28 @@ type authRepository interface {
 	Authenticate(uuid uuid.UUID, password string) error
 }
 
-type userRepository interface {
-	FindUserByEmail(email string) (user.IModel, error)
+type playerRepository interface {
+	FindPlayerByEmail(email string) (player.IModel, error)
 }
 
 // Service is the backing auth service invoked by HTTP/REST handlers
 type Service struct {
-	auth authRepository
-	user userRepository
+	auth   authRepository
+	player playerRepository
 }
 
 // CreateService creates an instance of the auth service struct
-func CreateService(ar authRepository, ur userRepository) *Service {
+func CreateService(ar authRepository, pr playerRepository) *Service {
 	return &Service{
-		auth: ar,
-		user: ur,
+		auth:   ar,
+		player: pr,
 	}
 }
 
 // Authenticate validates the username against the password and returns a JWT
 func (s *Service) Authenticate(username string, password string) (string, error) {
-	user, err := s.user.FindUserByEmail(username)
-	// TODO: err from FindUserByEmail needs to be handled
+	user, err := s.player.FindPlayerByEmail(username)
+	// TODO: err from FindPlayerByEmail needs to be handled
 	if err != nil {
 		return "", errors.New("Invalid username or password")
 	}
