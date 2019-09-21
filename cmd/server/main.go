@@ -80,6 +80,9 @@ func main() {
 	authHandler := auth.CreateHandler(authService)
 	r.HandleFunc("/api/auth", authHandler.Authenticate).Methods("POST")
 
+	playerHandler := player.CreateHandler()
+	r.HandleFunc("/api/players", playerHandler.CreatePlayer).Methods("POST")
+
 	// Handler for non-existing routes
 	r.PathPrefix("/").HandlerFunc(catchAllHandler)
 
