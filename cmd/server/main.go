@@ -112,7 +112,6 @@ func middleware(next stdHttp.Handler) stdHttp.Handler {
 
 		w.Header().Add("Access-Control-Allow-Origin", "http://localhost:3000")
 		w.Header().Add("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, Authorization,X-CSRF-Token")
-		w.Header().Add("Content-Type", "application/json")
 
 		next.ServeHTTP(w, r)
 	})
