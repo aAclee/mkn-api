@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/aaclee/mkn-api/pkg/encode"
 )
 
 type playerService interface {
@@ -32,34 +34,20 @@ func (h *Handler) CreatePlayer(w http.ResponseWriter, r *http.Request) {
 
 	err := decoder.Decode(&body)
 	if err != nil {
-		encodeError(w, http.StatusBadRequest, fmt.Sprintf("Error parsing request: %v", err))
+		encode.ErrorJSON(w, http.StatusBadRequest, fmt.Sprintf("Error parsing request: %v", err))
 		return
 	}
 
 	if body.Email == "" {
-		encodeError(w, http.StatusBadRequest, "Email cannot be empty")
+		encode.ErrorJSON(w, http.StatusBadRequest, "Email cannot be empty")
 		return
 	}
 
 	player, err := h.player.CreatePlayer(body.Email)
 	if err != nil {
-		encodeError(w, http.StatusBadRequest, err.Error())
+		encode.ErrorJSON(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	encode(w, player)
-}
-
-func encode(w http.ResponseWriter, resp interface{}) {
-	json.NewEncoder(w).Encode(resp)
-}
-
-func encodeError(w http.ResponseWriter, status int, msg string) {
-	w.WriteHeader(status)
-	encode(w, struct {
-		Error string `json:"error"`
-	}{
-		Error: msg,
-	})
+	encode.JSON(w, player, http.StatusCreated)
 }
