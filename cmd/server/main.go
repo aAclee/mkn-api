@@ -75,12 +75,13 @@ func main() {
 
 	// Services
 	authService := auth.CreateService(authRepository, playerRepository)
+	playerService := player.CreateService()
 
 	// Handlers
 	authHandler := auth.CreateHandler(authService)
 	r.HandleFunc("/api/auth", authHandler.Authenticate).Methods("POST")
 
-	playerHandler := player.CreateHandler()
+	playerHandler := player.CreateHandler(playerService)
 	r.HandleFunc("/api/players", playerHandler.CreatePlayer).Methods("POST")
 
 	// Handler for non-existing routes
