@@ -40,3 +40,26 @@ func (r *PostgresRepository) FindPlayerByEmail(email string) (IModel, error) {
 
 	return model, nil
 }
+
+// CreatePlayer creates a player in the postgres database
+func (r *PostgresRepository) CreatePlayer(email string) (IModel, error) {
+	var playerID int
+	newUUID := uuid.New()
+	err := r.psql.QueryRow(
+		`INSERT INTO players (uuid, email, admin)
+		VALUES ($1, $2, $3)
+		RETURNING id`,
+		newUUID,
+		email,
+		false,
+	).Scan(&playerID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Model{
+		ID:    playerID,
+		UUID:  newUUID,
+		Email: email,
+	}, nil
+}

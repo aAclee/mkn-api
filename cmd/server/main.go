@@ -75,7 +75,7 @@ func main() {
 
 	// Services
 	authService := auth.CreateService(authRepository, playerRepository)
-	playerService := player.CreateService()
+	playerService := player.CreateService(playerRepository)
 
 	// Handlers
 	authHandler := auth.CreateHandler(authService)
