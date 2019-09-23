@@ -11,6 +11,7 @@ import (
 
 type authRepository interface {
 	Authenticate(uuid uuid.UUID, password string) error
+	CreateAuth(uuid uuid.UUID, password string) error
 }
 
 type playerRepository interface {
@@ -59,4 +60,14 @@ func (s *Service) Authenticate(username string, password string) (string, error)
 	tokenString, _ := token.SignedString([]byte("munchkin-secret"))
 
 	return tokenString, nil
+}
+
+// CreateAuth creates a new entry for authentication
+func (s *Service) CreateAuth(uuid uuid.UUID, password string) error {
+	err := s.auth.CreateAuth(uuid, password)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
