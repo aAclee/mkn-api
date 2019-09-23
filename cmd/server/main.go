@@ -1,10 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"log"
 	stdHttp "net/http"
+
+	"github.com/aaclee/mkn-api/pkg/encode"
 
 	"github.com/aaclee/mkn-api/pkg/auth"
 	"github.com/aaclee/mkn-api/pkg/http"
@@ -80,6 +81,7 @@ func main() {
 	// Handlers
 	authHandler := auth.CreateHandler(authService)
 	r.HandleFunc("/api/auth", authHandler.Authenticate).Methods("POST")
+	r.HandleFunc("/api/auth/confirm", authHandler.ConfirmPlayer).Methods("POST")
 
 	playerHandler := player.CreateHandler(playerService)
 	r.HandleFunc("/api/players", playerHandler.CreatePlayer).Methods("POST")
@@ -95,13 +97,7 @@ func main() {
 }
 
 func catchAllHandler(w stdHttp.ResponseWriter, r *stdHttp.Request) {
-	w.WriteHeader(stdHttp.StatusNotFound)
-
-	json.NewEncoder(w).Encode(struct {
-		Error string `json:"error"`
-	}{
-		Error: "Path not found!",
-	})
+	encode.ErrorJSON(w, stdHttp.StatusNotFound, "Path not found!")
 }
 
 func middleware(next stdHttp.Handler) stdHttp.Handler {

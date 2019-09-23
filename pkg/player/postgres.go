@@ -41,6 +41,23 @@ func (r *PostgresRepository) FindPlayerByEmail(email string) (IModel, error) {
 	return model, nil
 }
 
+// FindPlayerByUUID finds a player by uuid
+func (r *PostgresRepository) FindPlayerByUUID(uuid uuid.UUID) (IModel, error) {
+	row := r.psql.QueryRow(
+		`SELECT id, uuid, email FROM players
+		WHERE uuid = $1`,
+		uuid,
+	)
+
+	model := &Model{}
+	err := row.Scan(&model.ID, &model.UUID, &model.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	return model, nil
+}
+
 // CreatePlayer creates a player in the postgres database
 func (r *PostgresRepository) CreatePlayer(email string) (IModel, error) {
 	var playerID int
