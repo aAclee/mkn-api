@@ -40,3 +40,21 @@ func (r *PostgresRepository) Authenticate(uuid uuid.UUID, password string) error
 
 	return nil
 }
+
+// CreateAuth creates a new row with uuid and password hash
+func (r *PostgresRepository) CreateAuth(uuid uuid.UUID, password string) error {
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	authInsertQuery := `
+		INSERT INTO auth (user_uuid, password)
+		VALUES ($1, $2)`
+	_, err = r.psql.Exec(authInsertQuery, uuid, passwordHash)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
