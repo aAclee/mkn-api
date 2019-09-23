@@ -79,7 +79,7 @@ func main() {
 	playerService := player.CreateService(playerRepository)
 
 	// Handlers
-	authHandler := auth.CreateHandler(authService, playerService)
+	authHandler := auth.CreateHandler(authService)
 	r.HandleFunc("/api/auth", authHandler.Authenticate).Methods("POST")
 	r.HandleFunc("/api/auth/confirm", authHandler.ConfirmPlayer).Methods("POST")
 

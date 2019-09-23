@@ -6,31 +6,24 @@ import (
 	"net/http"
 
 	"github.com/aaclee/mkn-api/pkg/player"
-	"github.com/google/uuid"
 
 	"github.com/aaclee/mkn-api/pkg/encode"
 )
 
 type authService interface {
 	Authenticate(username string, password string) (string, error)
-	CreateAuth(uuid uuid.UUID, password string) error
-}
-
-type playerService interface {
-	FindPlayerByConfirmation(code string) (player.IModel, error)
+	CreateAuth(info *ConfirmationInfo) (player.IModel, error)
 }
 
 // Handler is a RESTful HTTP endpoint for for authentication
 type Handler struct {
-	auth   authService
-	player playerService
+	auth authService
 }
 
 // CreateHandler creates a new auth handler instance
-func CreateHandler(as authService, ps playerService) *Handler {
+func CreateHandler(as authService) *Handler {
 	return &Handler{
-		auth:   as,
-		player: ps,
+		auth: as,
 	}
 }
 
@@ -68,9 +61,6 @@ func (h *Handler) ConfirmPlayer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	code := codes[0]
-	player, err := h.player.FindPlayerByConfirmation(code)
-
 	decoder := json.NewDecoder(r.Body)
 
 	var body struct {
@@ -79,30 +69,21 @@ func (h *Handler) ConfirmPlayer(w http.ResponseWriter, r *http.Request) {
 		PasswordB string `json:"passwordConfirmation"`
 	}
 
-	err = decoder.Decode(&body)
+	err := decoder.Decode(&body)
 	if err != nil {
 		encode.ErrorJSON(w, http.StatusBadRequest, fmt.Sprintf("Error parsing request: %v", err))
 		return
 	}
 
-	if player.GetEmail() != body.Username {
-		encode.ErrorJSON(w, http.StatusBadRequest, "Error parsing request: username does not match")
-		return
-	}
-
-	if player.GetUUID().String() != code {
-		encode.ErrorJSON(w, http.StatusBadRequest, "Error parsing request: confirmation code is invalid")
-		return
-	}
-
-	if body.PasswordA != body.PasswordB {
-		encode.ErrorJSON(w, http.StatusBadRequest, "Error parsing request: password does not match confirmation password")
-		return
-	}
-
-	err = h.auth.CreateAuth(player.GetUUID(), body.PasswordA)
+	code := codes[0]
+	player, err := h.auth.CreateAuth(&ConfirmationInfo{
+		confirmationCode: code,
+		username:         body.Username,
+		password:         body.PasswordA,
+		confirmPassword:  body.PasswordB,
+	})
 	if err != nil {
-		encode.ErrorJSON(w, http.StatusBadRequest, fmt.Sprintf("Error confirming player: %v", err))
+		encode.ErrorJSON(w, http.StatusBadRequest, fmt.Sprintf("Error parsing request: %v", err))
 		return
 	}
 
