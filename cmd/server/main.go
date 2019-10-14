@@ -9,7 +9,9 @@ import (
 
 	"github.com/aaclee/mkn-api/pkg/auth"
 	"github.com/aaclee/mkn-api/pkg/http"
+	"github.com/aaclee/mkn-api/pkg/jwt"
 	"github.com/aaclee/mkn-api/pkg/logger"
+	"github.com/aaclee/mkn-api/pkg/middleware"
 	"github.com/aaclee/mkn-api/pkg/player"
 	"github.com/aaclee/mkn-api/pkg/postgres"
 	"github.com/gorilla/mux"
@@ -68,7 +70,7 @@ func main() {
 	r := mux.NewRouter()
 
 	// Mux middleware
-	r.Use(middleware)
+	r.Use(standardizeHandler)
 
 	// Repositories
 	authRepository := auth.CreatePostgresRepository(db)
@@ -84,7 +86,11 @@ func main() {
 	r.HandleFunc("/api/auth/confirm", authHandler.ConfirmPlayer).Methods("POST")
 
 	playerHandler := player.CreateHandler(playerService)
-	r.HandleFunc("/api/players", playerHandler.CreatePlayer).Methods("POST")
+	r.HandleFunc("/api/players", middleware.HandlerFunc(
+		playerHandler.CreatePlayer,
+		player.MiddlewareAdmin,
+		jwt.MiddlewareVerify,
+	)).Methods("POST")
 
 	// Handler for non-existing routes
 	r.PathPrefix("/").HandlerFunc(catchAllHandler)
@@ -100,13 +106,12 @@ func catchAllHandler(w stdHttp.ResponseWriter, r *stdHttp.Request) {
 	encode.ErrorJSON(w, stdHttp.StatusNotFound, "Path not found!")
 }
 
-func middleware(next stdHttp.Handler) stdHttp.Handler {
+func standardizeHandler(next stdHttp.Handler) stdHttp.Handler {
 	return stdHttp.HandlerFunc(func(w stdHttp.ResponseWriter, r *stdHttp.Request) {
 		if r.Method == stdHttp.MethodOptions {
 			return
 		}
 
-		w.Header().Add("Access-Control-Allow-Origin", "http://localhost:3000")
 		w.Header().Add("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, Authorization,X-CSRF-Token")
 
 		next.ServeHTTP(w, r)
