@@ -43,13 +43,13 @@ func CreateService(ar authRepository, pr playerRepository) *Service {
 
 // Authenticate validates the username against the password and returns a JWT
 func (s *Service) Authenticate(username string, password string) (string, error) {
-	user, err := s.player.FindPlayerByEmail(username)
+	player, err := s.player.FindPlayerByEmail(username)
 	// TODO: err from FindPlayerByEmail needs to be handled
 	if err != nil {
 		return "", errors.New("Invalid username or password")
 	}
 
-	err = s.auth.Authenticate(user.GetUUID(), password)
+	err = s.auth.Authenticate(player.GetUUID(), password)
 	if err != nil {
 		return "", errors.New("Invalid username or password")
 	}
@@ -57,8 +57,9 @@ func (s *Service) Authenticate(username string, password string) (string, error)
 	// TODO: Add email / username to this claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"iss": "munchkin-api",
-		"sub": user.GetUUID(),
-		"usr": user.GetEmail(),
+		"sub": player.GetUUID(),
+		"usr": player.GetEmail(),
+		"adn": player.IsAdmin(),
 		"aud": "munchkin-ui",
 		"exp": time.Now().Add(time.Hour * 8),
 		"nbf": time.Now(),

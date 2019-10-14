@@ -10,6 +10,7 @@ import (
 type IModel interface {
 	GetEmail() string
 	GetUUID() uuid.UUID
+	IsAdmin() bool
 }
 
 // PostgresRepository is the backing player repository invoked by services
@@ -27,13 +28,13 @@ func CreatePostgresRepository(db *sql.DB) *PostgresRepository {
 // FindPlayerByEmail finds a player by email
 func (r *PostgresRepository) FindPlayerByEmail(email string) (IModel, error) {
 	row := r.psql.QueryRow(
-		`SELECT id, uuid, email FROM players
+		`SELECT id, uuid, email, admin FROM players
 		WHERE email = $1`,
 		email,
 	)
 
 	model := &Model{}
-	err := row.Scan(&model.ID, &model.UUID, &model.Email)
+	err := row.Scan(&model.ID, &model.UUID, &model.Email, &model.Admin)
 	if err != nil {
 		return nil, err
 	}
@@ -44,13 +45,13 @@ func (r *PostgresRepository) FindPlayerByEmail(email string) (IModel, error) {
 // FindPlayerByUUID finds a player by uuid
 func (r *PostgresRepository) FindPlayerByUUID(uuid uuid.UUID) (IModel, error) {
 	row := r.psql.QueryRow(
-		`SELECT id, uuid, email FROM players
+		`SELECT id, uuid, email, admin FROM players
 		WHERE uuid = $1`,
 		uuid,
 	)
 
 	model := &Model{}
-	err := row.Scan(&model.ID, &model.UUID, &model.Email)
+	err := row.Scan(&model.ID, &model.UUID, &model.Email, &model.Admin)
 	if err != nil {
 		return nil, err
 	}
