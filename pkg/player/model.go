@@ -2,7 +2,7 @@ package player
 
 import "github.com/google/uuid"
 
-// Model representats the collection of player information
+// Model represents the collection of player information
 type Model struct {
 	ID    int       `json:"id"`
 	UUID  uuid.UUID `json:"uuid"`
