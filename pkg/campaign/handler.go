@@ -18,9 +18,9 @@ type Handler struct {
 }
 
 // CreateHandler creates a new campaign handler instance
-func CreateHandler(ps campaignService) *Handler {
+func CreateHandler(cs campaignService) *Handler {
 	return &Handler{
-		campaign: ps,
+		campaign: cs,
 	}
 }
 
