@@ -75,4 +75,6 @@ func main() {
 		logger.Errorf("SEED: Could not insert admin player value: %v", err)
 		os.Exit(1)
 	}
+
+	logger.Info("Successfully seeded admin in database")
 }
