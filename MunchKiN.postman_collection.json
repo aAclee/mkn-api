@@ -17,7 +17,7 @@
 								"id": "1d74efa1-c15c-4676-a672-8660b3271da6",
 								"exec": [
 									"jsonData = JSON.parse(responseBody);",
-									"postman.setEnvironmentVariable(\"code-challenge-token\", jsonData.token);"
+									"postman.setEnvironmentVariable(\"mkn-token\", jsonData.token);"
 								],
 								"type": "text/javascript"
 							}
@@ -43,6 +43,101 @@
 							"path": [
 								"api",
 								"auth"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/auth/confirm",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1d74efa1-c15c-4676-a672-8660b3271da6",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"username\": \"player2.mkn.gmail.com\",\n\t\"password\": \"password\",\n\t\"passwordConfirmation\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{api}}/api/auth/confirm?code=e92f12c6-9522-4b3e-899a-81cc06a84a28",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"confirm"
+							],
+							"query": [
+								{
+									"key": "code",
+									"value": "e92f12c6-9522-4b3e-899a-81cc06a84a28"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "campaigns",
+			"item": [
+				{
+					"name": "/api/campaigns",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1d74efa1-c15c-4676-a672-8660b3271da6",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{mkn-token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"Lord of the Nine Hells\"\n}"
+						},
+						"url": {
+							"raw": "{{api}}/api/campaigns",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"api",
+								"campaigns"
 							]
 						}
 					},
@@ -73,11 +168,16 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{mkn-token}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"username\": \"player1.mkn.gmail.com\"\n}"
+							"raw": "{\n\t\"email\": \"player2.mkn.gmail.com\"\n}"
 						},
 						"url": {
 							"raw": "{{api}}/api/players",
@@ -92,7 +192,8 @@
 					},
 					"response": []
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		},
 		{
 			"name": "/test",
