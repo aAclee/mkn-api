@@ -17,7 +17,7 @@ type Handler struct {
 	player playerService
 }
 
-// CreateHandler creates a new auth handler instance
+// CreateHandler creates a new player handler instance
 func CreateHandler(ps playerService) *Handler {
 	return &Handler{
 		player: ps,
