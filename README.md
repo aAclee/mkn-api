@@ -2,6 +2,19 @@
 
 # Requirements
 
+## Folder Structure
+For the packages to import properly ensure that the folder structure looks like below:
+
+```
+$GOPATH/src/github.com/aaclee
+└── mkn-api/
+    ├── cmd/
+    ├── config/
+    ├── db/
+    ├── pkg/
+    └── script/
+```
+
 ## Go
 
 ### Link
@@ -61,23 +74,35 @@ https://docs.docker.com/compose/install/
 
 ## Getting Started
 
+### Using the `setup.sh`
+
+Using the `setup.sh` script will check if all the dependancies are availible.
+
+```shell
+# At the top level folder
+
+# Give permission to setup.sh
+$ chmod +x ./script/setup.sh
+
+# Run setup script
+$ script/setup.sh
+
+# Running the server
+$ go run cmd/server/main.go
+```
+
+### Manually
 
 ```shell
 # Starting the database
 $ docker-compose up
-```
 
-```shell
 # Running migrations
 $ migrate -database "postgres://mkn_psql:password@localhost:5432/mkn_db?sslmode=disable" -path ./db/migrations up
-```
 
-```shell
 # Seed database
 $ go run cmd/seed/main.go
-```
 
-```shell
 # Running the server
 $ go run cmd/server/main.go
 ```
