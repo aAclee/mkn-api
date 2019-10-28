@@ -21,6 +21,23 @@ func CreatePostgresRepository(db *sql.DB) *PostgresRepository {
 	}
 }
 
+// FindCampaignByID finds a campaign by :id
+func (r *PostgresRepository) FindCampaignByID(id string) (IModel, error) {
+	row := r.psql.QueryRow(
+		`SELECT id, name FROM campaigns
+		WHERE id = $1`,
+		id,
+	)
+
+	model := &Model{}
+	err := row.Scan(&model.ID, &model.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return model, nil
+}
+
 // CreateCampaign creates a campaign in the postgres database
 func (r *PostgresRepository) CreateCampaign(name string) (IModel, error) {
 	var campaignID int
