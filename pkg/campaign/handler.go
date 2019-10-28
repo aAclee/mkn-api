@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/aaclee/mkn-api/pkg/encode"
 )
 
 type campaignService interface {
 	CreateCampaign(email string) (IModel, error)
+	FindCampaignByID(id string) (IModel, error)
 }
 
 // Handler is a RESTful HTTP endpoint for for campaigns
@@ -50,4 +52,24 @@ func (h *Handler) CreateCampaign(w http.ResponseWriter, r *http.Request) {
 	}
 
 	encode.JSON(w, campaign, http.StatusCreated)
+}
+
+// FindCampaignByID finds a campaign by :id
+func (h *Handler) FindCampaignByID(w http.ResponseWriter, r *http.Request) {
+	path := strings.Split(r.URL.String(), "/")
+
+	ok := len(path) == 4 && path[2] == "campaigns"
+	if !ok {
+		encode.ErrorJSON(w, http.StatusBadRequest, "ID parameter not found")
+		return
+	}
+
+	id := path[3]
+	campaign, err := h.campaign.FindCampaignByID(id)
+	if err != nil {
+		encode.ErrorJSON(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	encode.JSON(w, campaign, http.StatusOK)
 }
