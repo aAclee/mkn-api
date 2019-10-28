@@ -93,6 +93,10 @@ func main() {
 		campaignHandler.CreateCampaign,
 		jwt.MiddlewareVerify,
 	)).Methods("POST")
+	r.HandleFunc("/api/campaigns/{id}", middleware.HandlerFunc(
+		campaignHandler.FindCampaignByID,
+		jwt.MiddlewareVerify,
+	)).Methods("GET")
 
 	playerHandler := player.CreateHandler(playerService)
 	r.HandleFunc("/api/players", middleware.HandlerFunc(
