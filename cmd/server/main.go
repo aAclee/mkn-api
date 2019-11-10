@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"log"
 	stdHttp "net/http"
 
 	"github.com/aaclee/mkn-api/pkg/campaign"
@@ -26,14 +25,14 @@ const (
 )
 
 func main() {
+	// Setting up logger
+	log := logger.CreateLogger()
+
 	// Getting server configs
 	c, err := http.GetServerConfigs(serverConfig)
 	if err != nil {
 		log.Fatalf("Error processing server config file at: %s, %s\n", serverConfig, err)
 	}
-
-	// Setting up logger
-	logger := logger.CreateLogger()
 
 	// Getting database configs
 	dc, err := postgres.GetDatabaseConfigs(postgresConfig)
@@ -60,7 +59,7 @@ func main() {
 
 	// Create server configs
 	config := http.Config{
-		Log:  logger,
+		Log:  log,
 		Port: c.Port,
 	}
 
@@ -72,6 +71,7 @@ func main() {
 
 	// Mux middleware
 	r.Use(standardizeHandler)
+	r.Use(logger.Middleware)
 
 	// Repositories
 	authRepository := auth.CreatePostgresRepository(db)
