@@ -24,7 +24,7 @@ func (l Logger) Info(v ...interface{}) {
 
 // Infof will log arguments are handled in the manner of fmt.Printf.
 func (l Logger) Infof(format string, v ...interface{}) {
-	l.log.Printf("INFO: "+format, v)
+	l.log.Printf("INFO: "+format, v...)
 }
 
 // Error will log arguments in the manner of fmt.Print.
@@ -34,5 +34,15 @@ func (l Logger) Error(v ...interface{}) {
 
 // Errorf will log arguments are handled in the manner of fmt.Printf.
 func (l Logger) Errorf(format string, v ...interface{}) {
-	l.log.Printf("ERROR: "+format, v)
+	l.log.Printf("ERROR: "+format, v...)
+}
+
+// Fatal will log arguments in the manner of fmt.Print.
+func (l Logger) Fatal(v ...interface{}) {
+	l.log.Fatal("FATAL: ", v)
+}
+
+// Fatalf will log arguments are handled in the manner of fmt.Printf.
+func (l Logger) Fatalf(format string, v ...interface{}) {
+	l.log.Printf("FATAL: "+format, v...)
 }
