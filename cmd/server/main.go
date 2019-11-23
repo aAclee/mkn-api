@@ -21,7 +21,7 @@ import (
 
 const (
 	serverConfig   = "./config/server.development.json"
-	postgresConfig = "./config/postgres.development.json"
+	postgresConfig = "./db/postgres.development.json"
 )
 
 func main() {
