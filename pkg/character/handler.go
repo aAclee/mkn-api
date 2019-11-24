@@ -1,6 +1,7 @@
 package character
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -8,7 +9,7 @@ import (
 )
 
 type characterService interface {
-	CreateCharacter() (IModel, error)
+	CreateCharacter(c *Model) (IModel, error)
 }
 
 // Handler is a RESTful HTTP endpoint for for characters
@@ -25,9 +26,16 @@ func CreateHandler(cs characterService) *Handler {
 
 // CreateCharacter is the HTTP POST handler for /api/characters
 func (h *Handler) CreateCharacter(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r.Body)
+	decoder := json.NewDecoder(r.Body)
 
-	character, err := h.character.CreateCharacter()
+	c := &Model{}
+	err := decoder.Decode(c)
+	if err != nil {
+		encode.ErrorJSON(w, http.StatusBadRequest, fmt.Sprintf("Error parsing request: %v", err))
+		return
+	}
+
+	character, err := h.character.CreateCharacter(c)
 	if err != nil {
 		encode.ErrorJSON(w, http.StatusBadRequest, err.Error())
 		return
