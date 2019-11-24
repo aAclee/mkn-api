@@ -1,7 +1,7 @@
 package character
 
 type characterRepository interface {
-	CreateCharacter() (IModel, error)
+	CreateCharacter(c *Model) (IModel, error)
 }
 
 // Service is the backing character service invoked by HTTP/REST handlers
@@ -17,8 +17,8 @@ func CreateService(cr characterRepository) *Service {
 }
 
 // CreateCharacter creates a new character
-func (s *Service) CreateCharacter() (IModel, error) {
-	character, err := s.character.CreateCharacter()
+func (s *Service) CreateCharacter(c *Model) (IModel, error) {
+	character, err := s.character.CreateCharacter(c)
 	if err != nil {
 		return nil, err
 	}
