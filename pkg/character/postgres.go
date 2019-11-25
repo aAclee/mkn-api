@@ -2,7 +2,6 @@ package character
 
 import (
 	"database/sql"
-	"fmt"
 )
 
 // IModel represents the model interface
@@ -23,7 +22,19 @@ func CreatePostgresRepository(db *sql.DB) *PostgresRepository {
 }
 
 // CreateCharacter creates a campaign in the postgres database
-func (r *PostgresRepository) CreateCharacter() (IModel, error) {
-	fmt.Println("CreateCharacter")
-	return &Model{}, nil
+func (r *PostgresRepository) CreateCharacter(c *Model) (IModel, error) {
+	err := r.psql.QueryRow(
+		`INSERT INTO characters_basic (player_id, campaign_id, name, family_name)
+		VALUES ($1, $2, $3, $4)
+		RETURNING id`,
+		c.PlayerID,
+		c.CampaignID,
+		c.Name,
+		c.FamilyName,
+	).Scan(&c.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return c, nil
 }
