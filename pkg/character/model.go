@@ -25,6 +25,8 @@ func (m *Model) UnmarshalJSON(data []byte) error {
 	var rm map[string]interface{}
 	json.Unmarshal(data, &rm)
 
+	// TODO: playerId should not come from payload. it should be taken from
+	// current user since the character creation is for the curren player.
 	v, ok := rm["playerId"]
 	if !ok {
 		return errors.New("playerId is required")
@@ -65,4 +67,36 @@ func (m *Model) UnmarshalJSON(data []byte) error {
 	}
 
 	return nil
+}
+
+// MarshalJSON is a custom marshaler used to handle sql types
+func (m *Model) MarshalJSON() ([]byte, error) {
+	campaignID := int(m.CampaignID.Int32)
+	c := struct {
+		ID         int     `json:"id"`
+		PlayerID   int     `json:"playerId"`
+		CampaignID *int    `json:"campaignId"`
+		Name       *string `json:"name"`
+		FamilyName *string `json:"familyName"`
+	}{
+		ID:         m.ID,
+		PlayerID:   m.PlayerID,
+		CampaignID: &campaignID,
+		Name:       &m.Name.String,
+		FamilyName: &m.FamilyName.String,
+	}
+
+	if !m.CampaignID.Valid {
+		c.CampaignID = nil
+	}
+
+	if !m.Name.Valid {
+		c.Name = nil
+	}
+
+	if !m.FamilyName.Valid {
+		c.FamilyName = nil
+	}
+
+	return json.Marshal(c)
 }
