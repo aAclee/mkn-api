@@ -61,3 +61,34 @@ func (r *PostgresRepository) FindCharacterByID(id string) (IModel, error) {
 
 	return model, nil
 }
+
+// FindCharactersByPlayerID returns all characters from a player by id
+func (r *PostgresRepository) FindCharactersByPlayerID(playerID int) ([]IModel, error) {
+	var models []IModel
+	rows, err := r.psql.Query(
+		`SELECT id, player_id, campaign_id, name, family_name FROM characters_basic
+		WHERE player_id = $1`,
+		playerID,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		model := &Model{}
+		err := rows.Scan(
+			&model.ID,
+			&model.PlayerID,
+			&model.CampaignID,
+			&model.Name,
+			&model.FamilyName,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		models = append(models, model)
+	}
+
+	return models, nil
+}
