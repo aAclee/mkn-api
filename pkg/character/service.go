@@ -8,6 +8,7 @@ import (
 type characterRepository interface {
 	CreateCharacter(c *Model) (IModel, error)
 	FindCharacterByID(id string) (IModel, error)
+	FindCharactersByPlayerID(id int) ([]IModel, error)
 }
 
 type playerRepository interface {
@@ -57,4 +58,24 @@ func (s *Service) FindCharacterByID(id string) (IModel, error) {
 	}
 
 	return character, nil
+}
+
+// FindCharactersByUUID returns all characters from a player by uuid
+func (s *Service) FindCharactersByUUID(playerUUID string) ([]IModel, error) {
+	uuid, err := uuid.Parse(playerUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	player, err := s.player.FindPlayerByUUID(uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	characters, err := s.character.FindCharactersByPlayerID(player.GetID())
+	if err != nil {
+		return nil, err
+	}
+
+	return characters, nil
 }
