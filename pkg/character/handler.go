@@ -13,6 +13,7 @@ import (
 type characterService interface {
 	CreateCharacter(c *Model, uuid string) (IModel, error)
 	FindCharacterByID(id string) (IModel, error)
+	FindCharactersByUUID(uuid string) ([]IModel, error)
 }
 
 // Handler is a RESTful HTTP endpoint for for characters
@@ -77,4 +78,27 @@ func (h *Handler) FindCharacterByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	encode.JSON(w, character, http.StatusOK)
+}
+
+// FindCharactersByUUID returns all characters for the current player by uuid
+func (h *Handler) FindCharactersByUUID(w http.ResponseWriter, r *http.Request) {
+	claims, err := jwt.ParseRequest(r)
+	if err != nil {
+		encode.ErrorJSON(w, http.StatusBadRequest, fmt.Sprintf("Corrupted token: %v", err))
+		return
+	}
+
+	playerUUID, ok := claims["sub"].(string)
+	if !ok {
+		encode.ErrorJSON(w, http.StatusBadRequest, "UUID missing from claims")
+		return
+	}
+
+	characters, err := h.character.FindCharactersByUUID(playerUUID)
+	if err != nil {
+		encode.ErrorJSON(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	encode.JSON(w, characters, http.StatusOK)
 }
