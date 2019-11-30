@@ -83,7 +83,7 @@ func main() {
 	// Services
 	authService := auth.CreateService(authRepository, playerRepository)
 	campaignService := campaign.CreateService(campaignRepository)
-	characterService := character.CreateService(characterRepository)
+	characterService := character.CreateService(characterRepository, playerRepository)
 	playerService := player.CreateService(playerRepository)
 
 	// Handlers
