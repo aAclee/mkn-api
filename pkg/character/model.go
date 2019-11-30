@@ -3,7 +3,6 @@ package character
 import (
 	"database/sql"
 	"encoding/json"
-	"errors"
 )
 
 // Model represents the collection of campaign information
@@ -25,22 +24,8 @@ func (m *Model) UnmarshalJSON(data []byte) error {
 	var rm map[string]interface{}
 	json.Unmarshal(data, &rm)
 
-	// TODO: playerId should not come from payload. it should be taken from
-	// current user since the character creation is for the curren player.
-	v, ok := rm["playerId"]
-	if !ok {
-		return errors.New("playerId is required")
-	}
-
-	n, ok := v.(float64)
-	if !ok {
-		return errors.New("playerId must be a number")
-	}
-
-	m.PlayerID = int(n)
-
 	m.CampaignID = sql.NullInt32{}
-	v, ok = rm["campaignId"]
+	v, ok := rm["campaignId"]
 	if ok {
 		if n, ok := v.(int32); ok {
 			m.CampaignID.Valid = true
