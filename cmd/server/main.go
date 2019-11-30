@@ -106,6 +106,10 @@ func main() {
 		characterHandler.CreateCharacter,
 		jwt.MiddlewareVerify,
 	)).Methods("POST")
+	r.HandleFunc("/api/characters/{id}", middleware.HandlerFunc(
+		characterHandler.FindCharacterByID,
+		jwt.MiddlewareVerify,
+	)).Methods("GET")
 
 	playerHandler := player.CreateHandler(playerService)
 	r.HandleFunc("/api/players", middleware.HandlerFunc(

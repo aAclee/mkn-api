@@ -38,3 +38,26 @@ func (r *PostgresRepository) CreateCharacter(c *Model) (IModel, error) {
 
 	return c, nil
 }
+
+// FindCharacterByID finds a campaign by :id
+func (r *PostgresRepository) FindCharacterByID(id string) (IModel, error) {
+	row := r.psql.QueryRow(
+		`SELECT id, player_id, campaign_id, name, family_name FROM characters_basic
+		WHERE id = $1`,
+		id,
+	)
+
+	model := &Model{}
+	err := row.Scan(
+		&model.ID,
+		&model.PlayerID,
+		&model.CampaignID,
+		&model.Name,
+		&model.FamilyName,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return model, nil
+}
