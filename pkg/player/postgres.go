@@ -9,6 +9,7 @@ import (
 // IModel represents the model interface
 type IModel interface {
 	GetEmail() string
+	GetID() int
 	GetUUID() uuid.UUID
 	IsAdmin() bool
 }

@@ -24,3 +24,8 @@ func (m *Model) GetUUID() uuid.UUID {
 func (m *Model) IsAdmin() bool {
 	return m.Admin
 }
+
+// GetID returns the player id
+func (m *Model) GetID() int {
+	return m.ID
+}
