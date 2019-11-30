@@ -14,6 +14,11 @@ import (
 // ContextKey is the type for the JWT middleware context
 type ContextKey string
 
+const (
+	// ClaimsKey is the constant for the context key cliams
+	ClaimsKey = ContextKey("claims")
+)
+
 // Verify token validitiy and within expiration time
 func Verify(encodedToken string) (jwt.MapClaims, error) {
 	token, err := jwt.Parse(encodedToken, func(token *jwt.Token) (interface{}, error) {
@@ -55,9 +60,19 @@ func MiddlewareVerify(h http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		ctx := context.WithValue(context.Background(), ContextKey("claims"), claims)
+		ctx := context.WithValue(context.Background(), ClaimsKey, claims)
 		r = r.WithContext(ctx)
 
 		h.ServeHTTP(w, r)
 	}
+}
+
+// ParseRequest retrieves the claims from the request
+func ParseRequest(r *http.Request) (jwt.MapClaims, error) {
+	claims, ok := r.Context().Value(ClaimsKey).(jwt.MapClaims)
+	if !ok {
+		return nil, errors.New("Error parsing claims")
+	}
+
+	return claims, nil
 }

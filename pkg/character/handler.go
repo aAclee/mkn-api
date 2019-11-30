@@ -7,10 +7,11 @@ import (
 	"strings"
 
 	"github.com/aaclee/mkn-api/pkg/encode"
+	"github.com/aaclee/mkn-api/pkg/jwt"
 )
 
 type characterService interface {
-	CreateCharacter(c *Model) (IModel, error)
+	CreateCharacter(c *Model, uuid string) (IModel, error)
 	FindCharacterByID(id string) (IModel, error)
 }
 
@@ -37,7 +38,19 @@ func (h *Handler) CreateCharacter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	character, err := h.character.CreateCharacter(c)
+	claims, err := jwt.ParseRequest(r)
+	if err != nil {
+		encode.ErrorJSON(w, http.StatusBadRequest, fmt.Sprintf("Corrupted token: %v", err))
+		return
+	}
+
+	uuid, ok := claims["sub"].(string)
+	if !ok {
+		encode.ErrorJSON(w, http.StatusBadRequest, "UUID missing from claims")
+		return
+	}
+
+	character, err := h.character.CreateCharacter(c, uuid)
 	if err != nil {
 		encode.ErrorJSON(w, http.StatusBadRequest, err.Error())
 		return
