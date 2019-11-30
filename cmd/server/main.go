@@ -5,6 +5,7 @@ import (
 	stdHttp "net/http"
 
 	"github.com/aaclee/mkn-api/pkg/campaign"
+	"github.com/aaclee/mkn-api/pkg/character"
 	"github.com/aaclee/mkn-api/pkg/encode"
 
 	"github.com/aaclee/mkn-api/pkg/auth"
@@ -76,11 +77,13 @@ func main() {
 	// Repositories
 	authRepository := auth.CreatePostgresRepository(db)
 	campaignRepository := campaign.CreatePostgresRepository(db)
+	characterRepository := character.CreatePostgresRepository(db)
 	playerRepository := player.CreatePostgresRepository(db)
 
 	// Services
 	authService := auth.CreateService(authRepository, playerRepository)
 	campaignService := campaign.CreateService(campaignRepository)
+	characterService := character.CreateService(characterRepository)
 	playerService := player.CreateService(playerRepository)
 
 	// Handlers
@@ -97,6 +100,12 @@ func main() {
 		campaignHandler.FindCampaignByID,
 		jwt.MiddlewareVerify,
 	)).Methods("GET")
+
+	characterHandler := character.CreateHandler(characterService)
+	r.HandleFunc("/api/characters", middleware.HandlerFunc(
+		characterHandler.CreateCharacter,
+		jwt.MiddlewareVerify,
+	)).Methods("POST")
 
 	playerHandler := player.CreateHandler(playerService)
 	r.HandleFunc("/api/players", middleware.HandlerFunc(
