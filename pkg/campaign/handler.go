@@ -7,11 +7,13 @@ import (
 	"strings"
 
 	"github.com/aaclee/mkn-api/pkg/encode"
+	"github.com/aaclee/mkn-api/pkg/jwt"
 )
 
 type campaignService interface {
 	CreateCampaign(email string) (IModel, error)
 	FindCampaignByID(id string) (IModel, error)
+	FindCampaignsByUUID(uuid string) ([]IModel, error)
 }
 
 // Handler is a RESTful HTTP endpoint for for campaigns
@@ -72,4 +74,27 @@ func (h *Handler) FindCampaignByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	encode.JSON(w, campaign, http.StatusOK)
+}
+
+// FindCampaignsByUUID returns all campaigns for the current player by uuid
+func (h *Handler) FindCampaignsByUUID(w http.ResponseWriter, r *http.Request) {
+	claims, err := jwt.ParseRequest(r)
+	if err != nil {
+		encode.ErrorJSON(w, http.StatusBadRequest, fmt.Sprintf("Corrupted token: %v", err))
+		return
+	}
+
+	playerUUID, ok := claims["sub"].(string)
+	if !ok {
+		encode.ErrorJSON(w, http.StatusBadRequest, "UUID missing from claims")
+		return
+	}
+
+	campaigns, err := h.campaign.FindCampaignsByUUID(playerUUID)
+	if err != nil {
+		encode.ErrorJSON(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	encode.JSON(w, campaigns, http.StatusOK)
 }

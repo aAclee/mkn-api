@@ -56,3 +56,32 @@ func (r *PostgresRepository) CreateCampaign(name string) (IModel, error) {
 		Name: name,
 	}, nil
 }
+
+// FindCampaignsByPlayerID returns all campaigns from a player by id
+func (r *PostgresRepository) FindCampaignsByPlayerID(playerID int) ([]IModel, error) {
+	models := []IModel{}
+	rows, err := r.psql.Query(
+		`SELECT campaigns.id, campaigns.name FROM campaigns
+		JOIN characters_basic ON campaigns.id=characters_basic.campaign_id
+		WHERE characters_basic.player_id = $1`,
+		playerID,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		model := &Model{}
+		err := rows.Scan(
+			&model.ID,
+			&model.Name,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		models = append(models, model)
+	}
+
+	return models, nil
+}
