@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	stdHttp "net/http"
+	"os"
 
 	"github.com/aaclee/mkn-api/pkg/campaign"
 	"github.com/aaclee/mkn-api/pkg/character"
@@ -21,8 +22,9 @@ import (
 )
 
 const (
-	serverConfig   = "./config/server.development.json"
-	postgresConfig = "./db/postgres.development.json"
+	serverConfig       = "./config/server.development.json"
+	postgresDevConfig  = "./db/postgres.development.json"
+	postgresTestConfig = "./db/postgres.development.json"
 )
 
 func main() {
@@ -36,6 +38,11 @@ func main() {
 	}
 
 	// Getting database configs
+	postgresConfig := postgresDevConfig
+	if os.Getenv("MODE") == "test" {
+		postgresConfig = postgresTestConfig
+	}
+
 	dc, err := postgres.GetDatabaseConfigs(postgresConfig)
 	if err != nil {
 		log.Fatalf("Error processing database config file at: %s, %s\n", serverConfig, err)
