@@ -82,7 +82,7 @@ func main() {
 
 	// Services
 	authService := auth.CreateService(authRepository, playerRepository)
-	campaignService := campaign.CreateService(campaignRepository)
+	campaignService := campaign.CreateService(campaignRepository, playerRepository)
 	characterService := character.CreateService(characterRepository, playerRepository)
 	playerService := player.CreateService(playerRepository)
 
@@ -98,6 +98,10 @@ func main() {
 	)).Methods("POST")
 	r.HandleFunc("/api/campaigns/{id}", middleware.HandlerFunc(
 		campaignHandler.FindCampaignByID,
+		jwt.MiddlewareVerify,
+	)).Methods("GET")
+	r.HandleFunc("/api/campaigns", middleware.HandlerFunc(
+		campaignHandler.FindCampaignsByUUID,
 		jwt.MiddlewareVerify,
 	)).Methods("GET")
 
