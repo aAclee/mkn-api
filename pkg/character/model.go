@@ -14,9 +14,19 @@ type Model struct {
 	FamilyName sql.NullString `json:"familyName"`
 }
 
-// GetName returns the campaign name
+// GetID returns the character id
+func (m *Model) GetID() int {
+	return m.ID
+}
+
+// GetName returns the character name
 func (m *Model) GetName() string {
 	return m.Name.String
+}
+
+// GetPlayerID returns the player who owns the character
+func (m *Model) GetPlayerID() int {
+	return m.PlayerID
 }
 
 // UnmarshalJSON is a custom unmarshaler used to handle nil/null/undefined values
