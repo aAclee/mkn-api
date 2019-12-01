@@ -1,12 +1,18 @@
 package character
 
+/**
+ * This package, specifically UpdateCharacterByID is why we need to use an ORM
+ */
+
 import (
 	"database/sql"
 )
 
 // IModel represents the model interface
 type IModel interface {
+	GetID() int
 	GetName() string
+	GetPlayerID() int
 }
 
 // PostgresRepository is the backing character repository invoked by services
@@ -91,4 +97,73 @@ func (r *PostgresRepository) FindCharactersByPlayerID(playerID int) ([]IModel, e
 	}
 
 	return models, nil
+}
+
+// UpdateCharacterByID returns updated character found by id
+func (r *PostgresRepository) UpdateCharacterByID(c IModel, data map[string]interface{}) (IModel, error) {
+	row := r.psql.QueryRow(
+		`SELECT id, player_id, campaign_id, name, family_name FROM characters_basic
+		WHERE id = $1`,
+		c.GetID(),
+	)
+
+	character := &Model{}
+	err := row.Scan(
+		&character.ID,
+		&character.PlayerID,
+		&character.CampaignID,
+		&character.Name,
+		&character.FamilyName,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	campaignID, ok := data["campaignId"]
+	if ok {
+		cid, ok := campaignID.(float64)
+		if ok {
+			character.CampaignID.Valid = true
+			character.CampaignID.Int32 = int32(cid)
+		} else {
+			character.CampaignID.Valid = false
+			character.CampaignID.Int32 = 0
+		}
+	}
+
+	name, ok := data["name"]
+	if ok {
+		n, ok := name.(string)
+		if ok {
+			character.Name.Valid = true
+			character.Name.String = n
+		} else {
+			character.Name.Valid = false
+			character.Name.String = ""
+		}
+	}
+
+	familyName, ok := data["familyName"]
+	if ok {
+		fn, ok := familyName.(string)
+		if ok {
+			character.FamilyName.Valid = true
+			character.FamilyName.String = fn
+		} else {
+			character.FamilyName.Valid = false
+			character.FamilyName.String = ""
+		}
+	}
+
+	_, err = r.psql.Exec(
+		`UPDATE characters_basic
+		SET campaign_id=$1, name=$2, family_name=$3
+		WHERE id = $4`,
+		character.CampaignID,
+		character.Name,
+		character.FamilyName,
+		c.GetID(),
+	)
+
+	return character, nil
 }

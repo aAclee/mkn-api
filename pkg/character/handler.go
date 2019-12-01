@@ -14,6 +14,7 @@ type characterService interface {
 	CreateCharacter(c *Model, uuid string) (IModel, error)
 	FindCharacterByID(id string) (IModel, error)
 	FindCharactersByUUID(uuid string) ([]IModel, error)
+	UpdateCharacterByID(uuid string, character IModel, body map[string]interface{}) (IModel, error)
 }
 
 // Handler is a RESTful HTTP endpoint for for characters
@@ -101,4 +102,51 @@ func (h *Handler) FindCharactersByUUID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	encode.JSON(w, characters, http.StatusOK)
+}
+
+// UpdateCharacterByID updates character of current player
+func (h *Handler) UpdateCharacterByID(w http.ResponseWriter, r *http.Request) {
+	path := strings.Split(r.URL.String(), "/")
+
+	ok := len(path) == 4 && path[2] == "characters"
+	if !ok {
+		encode.ErrorJSON(w, http.StatusBadRequest, "ID parameter not found")
+		return
+	}
+
+	claims, err := jwt.ParseRequest(r)
+	if err != nil {
+		encode.ErrorJSON(w, http.StatusBadRequest, fmt.Sprintf("Corrupted token: %v", err))
+		return
+	}
+
+	uuid, ok := claims["sub"].(string)
+	if !ok {
+		encode.ErrorJSON(w, http.StatusBadRequest, "UUID missing from claims")
+		return
+	}
+
+	id := path[3]
+	character, err := h.character.FindCharacterByID(id)
+	if err != nil {
+		encode.ErrorJSON(w, http.StatusNotFound, fmt.Sprintf("Character (id: %s) not found: %v", id, err))
+		return
+	}
+
+	decoder := json.NewDecoder(r.Body)
+
+	body := &map[string]interface{}{}
+	err = decoder.Decode(body)
+	if err != nil {
+		encode.ErrorJSON(w, http.StatusBadRequest, fmt.Sprintf("Error parsing request: %v", err))
+		return
+	}
+
+	updatedCharacter, err := h.character.UpdateCharacterByID(uuid, character, *body)
+	if err != nil {
+		encode.ErrorJSON(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	encode.JSON(w, updatedCharacter, http.StatusOK)
 }
