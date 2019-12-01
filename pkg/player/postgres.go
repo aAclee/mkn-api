@@ -82,3 +82,20 @@ func (r *PostgresRepository) CreatePlayer(email string) (IModel, error) {
 		Email: email,
 	}, nil
 }
+
+// FindPlayerByID finds a player by id
+func (r *PostgresRepository) FindPlayerByID(id int) (IModel, error) {
+	row := r.psql.QueryRow(
+		`SELECT id, uuid, email, admin FROM players
+		WHERE id = $1`,
+		id,
+	)
+
+	model := &Model{}
+	err := row.Scan(&model.ID, &model.UUID, &model.Email, &model.Admin)
+	if err != nil {
+		return nil, err
+	}
+
+	return model, nil
+}
