@@ -1,0 +1,7 @@
+{
+  "host": "localhost",
+  "port": 5433,
+  "user": "mkn_psql_test",
+  "pass": "password",
+  "dbName": "mkn_db"
+}
